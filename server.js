@@ -30,14 +30,21 @@ app.post("/upload", upload.single("video"), async (req, res) => {
     const filePath = req.file.path;
     const videoTitle = req.body.title || "Memory Video";
 
-    const response = await youtube.videos.insert({
-      part: "snippet,status",
-      requestBody: {
-        snippet: { title: videoTitle, description: "Uploaded via Memorial Site" },
-        status: { privacyStatus: "unlisted" }
+    // Use resumable upload for large files
+    const response = await youtube.videos.insert(
+      {
+        part: "snippet,status",
+        requestBody: {
+          snippet: { title: videoTitle, description: "Uploaded via Memorial Site" },
+          status: { privacyStatus: "unlisted" }
+        },
+        media: { body: fs.createReadStream(filePath) },
+        notifySubscribers: false
       },
-      media: { body: fs.createReadStream(filePath) }
-    });
+      {
+        resumable: true
+      }
+    );
 
     // cleanup temp file
     fs.unlinkSync(filePath);
@@ -48,7 +55,13 @@ app.post("/upload", upload.single("video"), async (req, res) => {
 
   } catch (err) {
     console.error("Upload error:", err);
-    res.status(500).send("Upload failed");
+
+    // send detailed error to frontend for debugging
+    res.status(500).json({
+      message: "Upload failed",
+      error: err.message,
+      details: err.response?.data || null
+    });
   }
 });
 

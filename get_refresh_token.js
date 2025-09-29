@@ -4,7 +4,7 @@ const readline = require("readline");
 const oauth2Client = new google.auth.OAuth2(
   "YOUR_CLIENT_ID",
   "YOUR_CLIENT_SECRET",
-  "YOUR_REDIRECT_URI"
+  "http://localhost:3000/oauth2callback"
 );
 
 const SCOPES = ["https://www.googleapis.com/auth/youtube.upload"];

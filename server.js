@@ -9,6 +9,11 @@ const upload = multer({ dest: "uploads/" });
 
 app.use(cors({ origin: process.env.CORS_ORIGIN }));
 
+// Root route for testing
+app.get("/", (req, res) => {
+  res.send("✅ Reb Michel Video Backend is running");
+});
+
 // Google OAuth2 setup
 const oauth2Client = new google.auth.OAuth2(
   process.env.CLIENT_ID,
